@@ -1,0 +1,763 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Week 1",
+      "provenance": [],
+      "collapsed_sections": [],
+      "mount_file_id": "1s-iNUYzNKO3vbe7BHmVBHKbKT7T3rruH",
+      "authorship_tag": "ABX9TyOEHivJG0ZWq96xChTtK2om",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/JayaBhaskara/Kelompok7/blob/main/WEEK1\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "WEEK 1 HOMEWORK - HOUSE PRICING PREDICTION WITH DECISION TREE"
+      ],
+      "metadata": {
+        "id": "jrH-t1EX9IgA"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "# Path dataset\n",
+        "iowa_file_path = '/content/drive/MyDrive/Colab Notebooks/Machine Learning with Mr. Risman Adnan/Week 1/iowa_house_price.csv'\n",
+        "\n",
+        "# Dataset dimasukkan kedalam variable\n",
+        "home_data = pd.read_csv(iowa_file_path)"
+      ],
+      "metadata": {
+        "id": "stzRkQSh9UxJ"
+      },
+      "execution_count": 2,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Print ringkasan dataset\n",
+        "home_data.describe()"
+      ],
+      "metadata": {
+        "id": "DSWMla-lWgm5",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 393
+        },
+        "outputId": "ef6f2781-7724-475b-f475-1acac852f93e"
+      },
+      "execution_count": 3,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "                Id   MSSubClass  LotFrontage        LotArea  OverallQual  \\\n",
+              "count  1460.000000  1460.000000  1201.000000    1460.000000  1460.000000   \n",
+              "mean    730.500000    56.897260    70.049958   10516.828082     6.099315   \n",
+              "std     421.610009    42.300571    24.284752    9981.264932     1.382997   \n",
+              "min       1.000000    20.000000    21.000000    1300.000000     1.000000   \n",
+              "25%     365.750000    20.000000    59.000000    7553.500000     5.000000   \n",
+              "50%     730.500000    50.000000    69.000000    9478.500000     6.000000   \n",
+              "75%    1095.250000    70.000000    80.000000   11601.500000     7.000000   \n",
+              "max    1460.000000   190.000000   313.000000  215245.000000    10.000000   \n",
+              "\n",
+              "       OverallCond    YearBuilt  YearRemodAdd   MasVnrArea   BsmtFinSF1  ...  \\\n",
+              "count  1460.000000  1460.000000   1460.000000  1452.000000  1460.000000  ...   \n",
+              "mean      5.575342  1971.267808   1984.865753   103.685262   443.639726  ...   \n",
+              "std       1.112799    30.202904     20.645407   181.066207   456.098091  ...   \n",
+              "min       1.000000  1872.000000   1950.000000     0.000000     0.000000  ...   \n",
+              "25%       5.000000  1954.000000   1967.000000     0.000000     0.000000  ...   \n",
+              "50%       5.000000  1973.000000   1994.000000     0.000000   383.500000  ...   \n",
+              "75%       6.000000  2000.000000   2004.000000   166.000000   712.250000  ...   \n",
+              "max       9.000000  2010.000000   2010.000000  1600.000000  5644.000000  ...   \n",
+              "\n",
+              "        WoodDeckSF  OpenPorchSF  EnclosedPorch    3SsnPorch  ScreenPorch  \\\n",
+              "count  1460.000000  1460.000000    1460.000000  1460.000000  1460.000000   \n",
+              "mean     94.244521    46.660274      21.954110     3.409589    15.060959   \n",
+              "std     125.338794    66.256028      61.119149    29.317331    55.757415   \n",
+              "min       0.000000     0.000000       0.000000     0.000000     0.000000   \n",
+              "25%       0.000000     0.000000       0.000000     0.000000     0.000000   \n",
+              "50%       0.000000    25.000000       0.000000     0.000000     0.000000   \n",
+              "75%     168.000000    68.000000       0.000000     0.000000     0.000000   \n",
+              "max     857.000000   547.000000     552.000000   508.000000   480.000000   \n",
+              "\n",
+              "          PoolArea       MiscVal       MoSold       YrSold      SalePrice  \n",
+              "count  1460.000000   1460.000000  1460.000000  1460.000000    1460.000000  \n",
+              "mean      2.758904     43.489041     6.321918  2007.815753  180921.195890  \n",
+              "std      40.177307    496.123024     2.703626     1.328095   79442.502883  \n",
+              "min       0.000000      0.000000     1.000000  2006.000000   34900.000000  \n",
+              "25%       0.000000      0.000000     5.000000  2007.000000  129975.000000  \n",
+              "50%       0.000000      0.000000     6.000000  2008.000000  163000.000000  \n",
+              "75%       0.000000      0.000000     8.000000  2009.000000  214000.000000  \n",
+              "max     738.000000  15500.000000    12.000000  2010.000000  755000.000000  \n",
+              "\n",
+              "[8 rows x 38 columns]"
+            ],
+            "text/html": [
+              "\n",
+              "  <div id=\"df-aa95b4d4-2228-4ea1-afc2-997be59e38b8\">\n",
+              "    <div class=\"colab-df-container\">\n",
+              "      <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>Id</th>\n",
+              "      <th>MSSubClass</th>\n",
+              "      <th>LotFrontage</th>\n",
+              "      <th>LotArea</th>\n",
+              "      <th>OverallQual</th>\n",
+              "      <th>OverallCond</th>\n",
+              "      <th>YearBuilt</th>\n",
+              "      <th>YearRemodAdd</th>\n",
+              "      <th>MasVnrArea</th>\n",
+              "      <th>BsmtFinSF1</th>\n",
+              "      <th>...</th>\n",
+              "      <th>WoodDeckSF</th>\n",
+              "      <th>OpenPorchSF</th>\n",
+              "      <th>EnclosedPorch</th>\n",
+              "      <th>3SsnPorch</th>\n",
+              "      <th>ScreenPorch</th>\n",
+              "      <th>PoolArea</th>\n",
+              "      <th>MiscVal</th>\n",
+              "      <th>MoSold</th>\n",
+              "      <th>YrSold</th>\n",
+              "      <th>SalePrice</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>count</th>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1201.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1452.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>...</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>1460.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>mean</th>\n",
+              "      <td>730.500000</td>\n",
+              "      <td>56.897260</td>\n",
+              "      <td>70.049958</td>\n",
+              "      <td>10516.828082</td>\n",
+              "      <td>6.099315</td>\n",
+              "      <td>5.575342</td>\n",
+              "      <td>1971.267808</td>\n",
+              "      <td>1984.865753</td>\n",
+              "      <td>103.685262</td>\n",
+              "      <td>443.639726</td>\n",
+              "      <td>...</td>\n",
+              "      <td>94.244521</td>\n",
+              "      <td>46.660274</td>\n",
+              "      <td>21.954110</td>\n",
+              "      <td>3.409589</td>\n",
+              "      <td>15.060959</td>\n",
+              "      <td>2.758904</td>\n",
+              "      <td>43.489041</td>\n",
+              "      <td>6.321918</td>\n",
+              "      <td>2007.815753</td>\n",
+              "      <td>180921.195890</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>std</th>\n",
+              "      <td>421.610009</td>\n",
+              "      <td>42.300571</td>\n",
+              "      <td>24.284752</td>\n",
+              "      <td>9981.264932</td>\n",
+              "      <td>1.382997</td>\n",
+              "      <td>1.112799</td>\n",
+              "      <td>30.202904</td>\n",
+              "      <td>20.645407</td>\n",
+              "      <td>181.066207</td>\n",
+              "      <td>456.098091</td>\n",
+              "      <td>...</td>\n",
+              "      <td>125.338794</td>\n",
+              "      <td>66.256028</td>\n",
+              "      <td>61.119149</td>\n",
+              "      <td>29.317331</td>\n",
+              "      <td>55.757415</td>\n",
+              "      <td>40.177307</td>\n",
+              "      <td>496.123024</td>\n",
+              "      <td>2.703626</td>\n",
+              "      <td>1.328095</td>\n",
+              "      <td>79442.502883</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>min</th>\n",
+              "      <td>1.000000</td>\n",
+              "      <td>20.000000</td>\n",
+              "      <td>21.000000</td>\n",
+              "      <td>1300.000000</td>\n",
+              "      <td>1.000000</td>\n",
+              "      <td>1.000000</td>\n",
+              "      <td>1872.000000</td>\n",
+              "      <td>1950.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>1.000000</td>\n",
+              "      <td>2006.000000</td>\n",
+              "      <td>34900.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>25%</th>\n",
+              "      <td>365.750000</td>\n",
+              "      <td>20.000000</td>\n",
+              "      <td>59.000000</td>\n",
+              "      <td>7553.500000</td>\n",
+              "      <td>5.000000</td>\n",
+              "      <td>5.000000</td>\n",
+              "      <td>1954.000000</td>\n",
+              "      <td>1967.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>5.000000</td>\n",
+              "      <td>2007.000000</td>\n",
+              "      <td>129975.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>50%</th>\n",
+              "      <td>730.500000</td>\n",
+              "      <td>50.000000</td>\n",
+              "      <td>69.000000</td>\n",
+              "      <td>9478.500000</td>\n",
+              "      <td>6.000000</td>\n",
+              "      <td>5.000000</td>\n",
+              "      <td>1973.000000</td>\n",
+              "      <td>1994.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>383.500000</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>25.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>6.000000</td>\n",
+              "      <td>2008.000000</td>\n",
+              "      <td>163000.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>75%</th>\n",
+              "      <td>1095.250000</td>\n",
+              "      <td>70.000000</td>\n",
+              "      <td>80.000000</td>\n",
+              "      <td>11601.500000</td>\n",
+              "      <td>7.000000</td>\n",
+              "      <td>6.000000</td>\n",
+              "      <td>2000.000000</td>\n",
+              "      <td>2004.000000</td>\n",
+              "      <td>166.000000</td>\n",
+              "      <td>712.250000</td>\n",
+              "      <td>...</td>\n",
+              "      <td>168.000000</td>\n",
+              "      <td>68.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>8.000000</td>\n",
+              "      <td>2009.000000</td>\n",
+              "      <td>214000.000000</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>max</th>\n",
+              "      <td>1460.000000</td>\n",
+              "      <td>190.000000</td>\n",
+              "      <td>313.000000</td>\n",
+              "      <td>215245.000000</td>\n",
+              "      <td>10.000000</td>\n",
+              "      <td>9.000000</td>\n",
+              "      <td>2010.000000</td>\n",
+              "      <td>2010.000000</td>\n",
+              "      <td>1600.000000</td>\n",
+              "      <td>5644.000000</td>\n",
+              "      <td>...</td>\n",
+              "      <td>857.000000</td>\n",
+              "      <td>547.000000</td>\n",
+              "      <td>552.000000</td>\n",
+              "      <td>508.000000</td>\n",
+              "      <td>480.000000</td>\n",
+              "      <td>738.000000</td>\n",
+              "      <td>15500.000000</td>\n",
+              "      <td>12.000000</td>\n",
+              "      <td>2010.000000</td>\n",
+              "      <td>755000.000000</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "<p>8 rows × 38 columns</p>\n",
+              "</div>\n",
+              "      <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-aa95b4d4-2228-4ea1-afc2-997be59e38b8')\"\n",
+              "              title=\"Convert this dataframe to an interactive table.\"\n",
+              "              style=\"display:none;\">\n",
+              "        \n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "       width=\"24px\">\n",
+              "    <path d=\"M0 0h24v24H0V0z\" fill=\"none\"/>\n",
+              "    <path d=\"M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z\"/><path d=\"M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z\"/>\n",
+              "  </svg>\n",
+              "      </button>\n",
+              "      \n",
+              "  <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      flex-wrap:wrap;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "      <script>\n",
+              "        const buttonEl =\n",
+              "          document.querySelector('#df-aa95b4d4-2228-4ea1-afc2-997be59e38b8 button.colab-df-convert');\n",
+              "        buttonEl.style.display =\n",
+              "          google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "        async function convertToInteractive(key) {\n",
+              "          const element = document.querySelector('#df-aa95b4d4-2228-4ea1-afc2-997be59e38b8');\n",
+              "          const dataTable =\n",
+              "            await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                     [key], {});\n",
+              "          if (!dataTable) return;\n",
+              "\n",
+              "          const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "            '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "            + ' to learn more about interactive tables.';\n",
+              "          element.innerHTML = '';\n",
+              "          dataTable['output_type'] = 'display_data';\n",
+              "          await google.colab.output.renderOutput(dataTable, element);\n",
+              "          const docLink = document.createElement('div');\n",
+              "          docLink.innerHTML = docLinkHtml;\n",
+              "          element.appendChild(docLink);\n",
+              "        }\n",
+              "      </script>\n",
+              "    </div>\n",
+              "  </div>\n",
+              "  "
+            ]
+          },
+          "metadata": {},
+          "execution_count": 3
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Kaggle Challenge\n",
+        "\n",
+        "# What is the average lot size (rounded to nearest integer)?\n",
+        "avg_lot_size = 10517\n",
+        "\n",
+        "# As of today, how old is the newest home (current year - the date in which it was built)\n",
+        "newest_home_age = 12"
+      ],
+      "metadata": {
+        "id": "oRNFpCHCWyV7"
+      },
+      "execution_count": 4,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Think About Your Data\n",
+        "\n",
+        "The newest house in your data isn't that new. A few potential explanations for this:\n",
+        "\n",
+        "1. They haven't built new houses where this data was collected.\n",
+        "2. The data was collected a long time ago. Houses built after the data publication wouldn't show up.\n",
+        "\n",
+        "If the reason is explanation #1 above, does that affect your trust in the model you build with this data? What about if it is reason #2?\n",
+        "\n",
+        "**I think that if explanation #1 is true and assuming the dataset is up to date, the model will not be affected as the data is simply... up to date. Conversely, if explanation #2 is true, the model will be affected due to obsolete data.**"
+      ],
+      "metadata": {
+        "id": "moWDID2CXVbm"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# In kaggle example, there are missing values. We can ignore those by simply dropping the column in the dataset. Here's how:\n",
+        "\n",
+        "# melbourne_data = melbourne_data.dropna(axis=0) # dropna drops missing values (think of na as \"not available\")\n"
+      ],
+      "metadata": {
+        "id": "pWinXbNmf4y2"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Printing all columns in the dataset\n",
+        "home_data.columns"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "CVPEMFKVnM5B",
+        "outputId": "85f6584a-d001-4c54-94c9-f77e7c1b979f"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "Index(['Id', 'MSSubClass', 'MSZoning', 'LotFrontage', 'LotArea', 'Street',\n",
+              "       'Alley', 'LotShape', 'LandContour', 'Utilities', 'LotConfig',\n",
+              "       'LandSlope', 'Neighborhood', 'Condition1', 'Condition2', 'BldgType',\n",
+              "       'HouseStyle', 'OverallQual', 'OverallCond', 'YearBuilt', 'YearRemodAdd',\n",
+              "       'RoofStyle', 'RoofMatl', 'Exterior1st', 'Exterior2nd', 'MasVnrType',\n",
+              "       'MasVnrArea', 'ExterQual', 'ExterCond', 'Foundation', 'BsmtQual',\n",
+              "       'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinSF1',\n",
+              "       'BsmtFinType2', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', 'Heating',\n",
+              "       'HeatingQC', 'CentralAir', 'Electrical', '1stFlrSF', '2ndFlrSF',\n",
+              "       'LowQualFinSF', 'GrLivArea', 'BsmtFullBath', 'BsmtHalfBath', 'FullBath',\n",
+              "       'HalfBath', 'BedroomAbvGr', 'KitchenAbvGr', 'KitchenQual',\n",
+              "       'TotRmsAbvGrd', 'Functional', 'Fireplaces', 'FireplaceQu', 'GarageType',\n",
+              "       'GarageYrBlt', 'GarageFinish', 'GarageCars', 'GarageArea', 'GarageQual',\n",
+              "       'GarageCond', 'PavedDrive', 'WoodDeckSF', 'OpenPorchSF',\n",
+              "       'EnclosedPorch', '3SsnPorch', 'ScreenPorch', 'PoolArea', 'PoolQC',\n",
+              "       'Fence', 'MiscFeature', 'MiscVal', 'MoSold', 'YrSold', 'SaleType',\n",
+              "       'SaleCondition', 'SalePrice'],\n",
+              "      dtype='object')"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 6
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Defining target feature\n",
+        "y = home_data.SalePrice\n",
+        "\n",
+        "# Defining features that is used in prediction\n",
+        "iowa_features = ['LotArea', 'YearBuilt']\n",
+        "X = home_data[iowa_features]"
+      ],
+      "metadata": {
+        "id": "f0xNsqnyndus"
+      },
+      "execution_count": 7,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.tree import DecisionTreeRegressor\n",
+        "\n",
+        "# In-sample Prediction using predefined features\n",
+        "iowa_model= DecisionTreeRegressor(random_state=1)\n",
+        "iowa_model.fit(X, y)\n",
+        "predictions = iowa_model.predict(X)\n",
+        "print(predictions)"
+      ],
+      "metadata": {
+        "id": "hSrjMlf6n0cS",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "6f55b230-2b34-4b19-e4a2-1e0802608c38"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[196750. 184250. 223500. ... 266500. 142125. 147500.]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# In-sample Prediction for the first 5 entries\n",
+        "head_predictions = iowa_model.predict(X.head())\n",
+        "print(head_predictions)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "KeB1NfQmJ99v",
+        "outputId": "602e504b-26fe-41a5-8a25-af3586bd3986"
+      },
+      "execution_count": 9,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[196750. 184250. 223500. 140000. 250000.]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Calculating the Mean Absolute Error (MAE)\n",
+        "from sklearn.metrics import mean_absolute_error\n",
+        "\n",
+        "mean_absolute_error(y, predictions)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "vzGhdyTaOJBe",
+        "outputId": "778ed763-72ef-4c81-cb25-3a4fc9492789"
+      },
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "986.04200913242"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 10
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.model_selection import train_test_split\n",
+        "\n",
+        "# Out-of-sample prediction by splitting the training set and testing set\n",
+        "train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=0)\n",
+        "\n",
+        "iowa_model = DecisionTreeRegressor()\n",
+        "iowa_model.fit(train_X, train_y)\n",
+        "\n",
+        "val_predictions = iowa_model.predict(val_X)\n",
+        "print(mean_absolute_error(val_y, val_predictions))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "M2H_udTPWAT_",
+        "outputId": "bccb36be-7186-4550-e5dc-148682b1b134"
+      },
+      "execution_count": 11,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "48447.20639269407\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Defining a function that will return a specific MAE based on Regressor Input\n",
+        "def get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y):\n",
+        "    model = DecisionTreeRegressor(max_leaf_nodes=max_leaf_nodes, random_state=0)\n",
+        "    model.fit(train_X, train_y)\n",
+        "    preds_val = model.predict(val_X)\n",
+        "    mae = mean_absolute_error(val_y, preds_val)\n",
+        "    return(mae)"
+      ],
+      "metadata": {
+        "id": "MYoOM08uzHNS"
+      },
+      "execution_count": 12,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Feeding the previous fungcion with different max_leaf_nodes value to see which value will return the lowest MAE\n",
+        "for max_leaf_nodes in [2, 3, 4, 5, 10, 15, 20, 30,  50, 100, 150, 200, 300, 500, 5000]:\n",
+        "    my_mae = get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y)\n",
+        "    print(\"Max leaf nodes: %d  \\t\\t Mean Absolute Error:  %d\" %(max_leaf_nodes, my_mae))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "dAdRsddQzVKL",
+        "outputId": "fc3c25b2-2d60-4b57-d87d-786d6cef4abf"
+      },
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Max leaf nodes: 2  \t\t Mean Absolute Error:  45933\n",
+            "Max leaf nodes: 3  \t\t Mean Absolute Error:  41455\n",
+            "Max leaf nodes: 4  \t\t Mean Absolute Error:  38326\n",
+            "Max leaf nodes: 5  \t\t Mean Absolute Error:  38675\n",
+            "Max leaf nodes: 10  \t\t Mean Absolute Error:  38872\n",
+            "Max leaf nodes: 15  \t\t Mean Absolute Error:  41970\n",
+            "Max leaf nodes: 20  \t\t Mean Absolute Error:  42546\n",
+            "Max leaf nodes: 30  \t\t Mean Absolute Error:  42467\n",
+            "Max leaf nodes: 50  \t\t Mean Absolute Error:  41585\n",
+            "Max leaf nodes: 100  \t\t Mean Absolute Error:  41953\n",
+            "Max leaf nodes: 150  \t\t Mean Absolute Error:  42465\n",
+            "Max leaf nodes: 200  \t\t Mean Absolute Error:  43281\n",
+            "Max leaf nodes: 300  \t\t Mean Absolute Error:  44786\n",
+            "Max leaf nodes: 500  \t\t Mean Absolute Error:  47114\n",
+            "Max leaf nodes: 5000  \t\t Mean Absolute Error:  48571\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "RANDOM FOREST"
+      ],
+      "metadata": {
+        "id": "0h8lXA7ES5oX"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from sklearn.ensemble import RandomForestRegressor\n",
+        "from sklearn.metrics import mean_absolute_error\n",
+        "\n",
+        "forest_model = RandomForestRegressor(random_state=1)\n",
+        "forest_model.fit(train_X, train_y)\n",
+        "preds_val = forest_model.predict(val_X)\n",
+        "print(mean_absolute_error(val_y, preds_val))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "FFD-4u8YS-uT",
+        "outputId": "bbad0ecd-f6af-4c74-97ec-46c9db1de353"
+      },
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "38707.605156582766\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
